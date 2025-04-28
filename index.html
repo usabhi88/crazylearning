@@ -903,13 +903,15 @@
     const techTopic = document.getElementById('hiddenSection').value;
     const associatedWith = document.getElementById('association').value;
 
-    const prompt = {
+    const prompt-old = {
       contents: [{
         parts: [{
           text: "Explain " + topic + " in " + techTopic + " with expample in easy way associated with " + associatedWith
         }]
       }]
     };
+
+    const prompt = "Explain " + topic + " in " + techTopic + " with expample in easy way associated with " + associatedWith;
 
     const response = await fetch(apiUrl, {
       method: 'POST',
