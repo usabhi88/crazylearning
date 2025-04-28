@@ -918,7 +918,7 @@
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(prompt)
+      body: prompt
     });
     const data = await response.json();
     return parseExplanationResponse(data);
@@ -953,7 +953,7 @@
     const techTopic = document.getElementById('hiddenSection').value;
     const associatedWith = document.getElementById('association').value;
 
-    const prompt = {
+    const promptOL = {
       contents: [{
         parts: [{
           text: "I want to practice about " + topic + " in " + techTopic + " hence pull 10 " + difficulty + " questions for me associated with " + associatedWith
@@ -961,12 +961,14 @@
       }]
     };
 
+    const prompt = "I want to practice about " + topic + " in " + techTopic + " hence pull 10 " + difficulty + " questions for me associated with " + associatedWith;
+
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(prompt)
+      body: prompt
     });
     const data = await response.json();
     return parseQuestionsResponse(data);
@@ -1154,7 +1156,7 @@
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(prompt)
+        body: question
       });
 
       const data = await response.json();
