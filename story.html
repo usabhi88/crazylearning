@@ -136,9 +136,9 @@
     loadingDiv.style.display = 'block';
     // Replace with your actual API key
     const API_KEY = 'YOUR_GOOGLE_API_KEY';
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=`;
+    const apiUrl = `https://gemini-app-roan.vercel.app/api/gemini`;
 
-    const prompt = {
+    const promptOLDF = {
       contents: [{
         parts: [{
           text: "Generate a list of exactly 50 creative and engaging story topics for children year 10. " +
@@ -150,13 +150,18 @@
       }]
     };
 
+    const prompt = "Generate a list of exactly 50 creative and engaging story topics for children year 10. " +
+            "Return only a JavaScript array format with comma-separated values, like this: " +
+            "[\"Topic 1\", \"Topic 2\", \"Topic 3\"]. " +
+            "Make sure there are exactly 50 items in the array and the topics are diverse, " +
+            "including mermaid, fairy tales, adventures, animal stories, and educational themes.";
     try {
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(prompt)
+        body: JSON.stringify({"prompt":prompt})
       });
 
       if (!response.ok) {
