@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <title>Java 8 Learning Hub</title>
+  <style>
+    :root {
+      --primary-color: #007acc;
+      --secondary-color: #6c757d;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --success-color: #28a745;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      grid-template-rows: auto 1fr;
+      grid-template-areas:
+                "header header"
+                "sidebar content";
+      min-height: 100vh;
+    }
+
+    .container.full-width {
+      grid-template-columns: 0 1fr;
+    }
+
+    header {
+      grid-area: header;
+      background: linear-gradient(90deg, #1a237e, #283593);
+      color: white;
+      padding: 1rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .header-content {
+      display: flex;
+      flex-direction: column;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .site-title {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .menu-bar {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .menu-item {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+      position: relative;
+    }
+
+    .menu-item:hover, .menu-item.active {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .menu-item.active {
+      font-weight: 500;
+    }
+
+    /* Dropdown styles */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+      top: 100%;
+      left: 0;
+      border-radius: 4px;
+      margin-top: 5px;
+    }
+
+    .dropdown-content a {
+      color: #333;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      transition: background-color 0.3s ease;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #f1f1f1;
+      color: var(--primary-color);
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .sidebar {
+      grid-area: sidebar;
+      background-color: white;
+      padding: 1rem;
+      overflow-y: auto;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, width 0.3s ease;
+    }
+
+    .sidebar.hidden {
+      transform: translateX(-300px);
+      width: 0;
+    }
+
+    .topic-list {
+      list-style: none;
+    }
+
+    .main-topic {
+      margin-bottom: 1rem;
+      font-weight: 600;
+      color: #070f62;
+      cursor: pointer;
+      font-size: 1.1rem;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+      background-color: #f3f8ff;
+    }
+
+    .subtopics {
+      margin-left: 1.5rem;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .expanded .subtopics {
+      max-height: 500px;
+    }
+
+    .subtopic {
+      padding: 0.5rem 0;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .subtopic:hover {
+      color: var(--primary-color);
+    }
+
+    .subtopic.active {
+      color: var(--primary-color);
+      font-weight: 500;
+    }
+
+    .content {
+      grid-area: content;
+      padding: 2rem;
+      background-color: #f8f9fa;
+      transition: margin-left 0.3s ease;
+      box-shadow: inset 0 0 15px rgba(135, 135, 135, .1), 0 0 0px 0px rgba(0, 0, 0, .3);
+    }
+
+    .topic-title {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: var(--dark-color);
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 0.5rem;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #0062a3;
+    }
+
+    .difficulty-selector {
+      display: flex;
+      gap: 0.5rem;
+      margin-left: 1rem;
+      align-items: center;
+    }
+
+    .difficulty-btn {
+      padding: 0.3rem 0.8rem;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+
+    .difficulty-btn.easy {
+      background-color: #e3f2fd;
+      color: #1565c0;
+      border: 1px solid #bbdefb;
+    }
+
+    .difficulty-btn.medium {
+      background-color: #fff3e0;
+      color: #ef6c00;
+      border: 1px solid #ffe0b2;
+    }
+
+    .difficulty-btn.hard {
+      background-color: #ffebee;
+      color: #c62828;
+      border: 1px solid #ffcdd2;
+    }
+
+    .difficulty-btn.active {
+      font-weight: bold;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .explanation-content,
+    .questions-content {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .questions-content {
+      counter-reset: question-counter;
+    }
+
+    .question {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .question-text {
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      counter-increment: question-counter;
+    }
+
+    .question-text::before {
+      content: counter(question-counter) ". ";
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top: 4px solid var(--primary-color);
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+                    "header"
+                    "sidebar"
+                    "content";
+      }
+
+      .sidebar {
+        max-height: 200px;
+      }
+
+      .sidebar.hidden {
+        max-height: 0;
+        transform: translateY(-200px);
+      }
+
+      .dropdown-content {
+        position: absolute;
+        width: 100%;
+        left: 0;
+      }
+    }
+
+    /* Add this CSS to define the blur effect */
+    .blurred {
+      filter: blur(10px);
+      pointer-events: none; /* Disable interactions */
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .styled-line {
+      color: #040607; /* Vibrant blue */
+      font-weight: bold;
+      font-size: 1.1rem; /* Slightly larger font size */
+      line-height: 1.5; /* Better spacing */
+      transition: transform 0.2s, color 0.3s; /* Smooth hover effects */
+    }
+
+    .styled-line:hover {
+      color: #FF4500; /* Change color on hover */
+      transform: scale(1.05); /* Slight zoom effect */
+    }
+
+    /* for text box */
+    .input-group {
+      display: flex;
+      align-items: center; /* Aligns the text box vertically with the buttons */
+      margin-bottom: 0; /* Removes extra spacing */
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #555;
+    }
+
+    .input-group input {
+      width: auto; /* Adjusts the width to fit the layout */
+      padding: 0.5rem 0.8rem; /* Matches the padding of the buttons */
+      font-size: 0.9rem; /* Matches the font size of the buttons */
+      border-radius: 3px; /* Matches the border radius of the buttons */
+      border: 1px solid #ccc; /* Adds a border for consistency */
+      transition: all 0.2s ease;
+      color: #007acc;
+    }
+
+    .input-group-1 input {
+      width: 85%; /* Adjusts the width to fit the layout */
+      padding: 0.5rem 0.8rem; /* Matches the padding of the buttons */
+      font-size: 0.9rem; /* Matches the font size of the buttons */
+      border-radius: 3px; /* Matches the border radius of the buttons */
+      border: 1px solid #ccc; /* Adds a border for consistency */
+      transition: all 0.2s ease;
+      margin-bottom: 1rem;
+    }
+
+    .input-group input:focus {
+      outline: none;
+    }
+
+    .input-10 {
+      border: none;
+      background: linear-gradient(120deg, #f6d365, #fda085);
+      color: white;
+      box-shadow: 0 5px 15px rgba(253, 160, 133, 0.3);
+    }
+
+    .output-section {
+      flex: 1;
+      min-width: 300px;
+      font-family: 'Arial', sans-serif; /* Sets the font family */
+      font-size: 18px; /* Sets the base font size */
+      font-weight: 400; /* Sets the font weight */
+      line-height: 1.6; /* Improves readability with line spacing */
+      color: #333; /* Sets the text color */
+      text-align: justify; /* Aligns text for better readability */
+    }
+
+    /* Styles for formatted elements */
+    .comment {
+      color: #27ae60;
+      font-style: italic;
+    }
+
+    .heading {
+      color: #8e44ad;
+      font-weight: bold;
+      font-size: 1.2em;
+      margin: 10px 0;
+    }
+
+    .highlight {
+      background-color: #ffeb3b;
+      padding: 2px;
+    }
+
+    .list-item {
+      margin-left: 20px;
+      margin-bottom: 5px;
+    }
+
+    .bold {
+      font-weight: bold;
+    }
+
+    .code {
+      font-family: monospace;
+      background-color: #f5f5f5;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+
+    /* Style for the dropdown container */
+    .dropdown-container {
+      width: 100%; /* Matches the sidebar width */
+      padding: 0.5rem;
+      background-color: #f8f9fa; /* Matches the sidebar background */
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional shadow for separation */
+      box-sizing: border-box;
+    }
+
+    /* Style for the dropdown */
+    .dropdown {
+      width: 100%; /* Full width of the container */
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: white;
+      box-sizing: border-box;
+    }
+
+  </style>
+
+  <style>
+    /* 1. Gradient Button */
+    .gradient-btn {
+      padding: 12px 36px;
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gradient-btn:hover {
+      box-shadow: 0 8px 25px rgba(67, 97, 238, 0.5);
+      transform: translateY(-3px);
+    }
+
+    .gradient-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Add this button inside the body -->
+<button id="toggleBlurBtn" class="btn btn-primary" style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
+  Toggle Blur
+</button>
+<input type="hidden" id="hiddenSection" value="">
+
+<div class="container" id="mainContainer">
+  <header>
+    <div class="header-content">
+      <h1 class="site-title">Crazy Learning</h1>
+      <div class="menu-bar">
+        <div class="menu-item active" data-section="home" tech-topic="Java">Java Factory</div>
+        <div class="menu-item" data-section="tutorial">Tutorial</div>
+        <div class="menu-item" data-section="practice">Practice</div>
+        <div class="menu-item" data-section="resources">Resources</div>
+        <div class="menu-item" data-section="about" tech-topic="Kafka">About</div>
+      </div>
+    </div>
+  </header>
+
+
+  <div class="sidebar" id="sidebar">
+    <!-- Dropdown above the sidebar -->
+    <div class="dropdown-container">
+      <select id="sidebarDropdown" class="dropdown">
+        <option value="java">Java</option>
+        <option value="springBoot">Spring Boot</option>
+        <option value="kafka">Kafka</option>
+        <option value="aws">AWS</option>
+      </select>
+    </div>
+    <br>
+    <ul class="topic-list" id="topicList">
+    </ul>
+  </div>
+
+
+  <div class="content" id="content">
+    <h2 class="topic-title" id="currentTopic">Welcome to Java 8 Learning Hub</h2>
+    <div class="input-group-1">
+      <input type="text" id="myCustomQuestion" class="input-10" placeholder="What is your question?">
+      <button id="getAns" class="btn btn-primary">Get Answer</button>
+    </div>
+    <div class="action-buttons" id="actionButtons">
+      <button id="explainBtn" class="btn btn-primary">Explain Topic</button>
+
+      <button id="questionsBtn" class="btn btn-primary">Pull Questions</button>
+      <div class="difficulty-selector">
+        <div class="difficulty-btn easy active" data-difficulty="easy">Easy</div>
+        <div class="difficulty-btn medium" data-difficulty="medium">Medium</div>
+        <div class="difficulty-btn hard" data-difficulty="hard">Hard</div>
+        <div class="input-group">
+          <input type="text" id="association" class="input-10" placeholder="Associate With">
+        </div>
+      </div>
+
+    </div>
+
+
+    <div id="welcomeContent">
+      <p>Select a topic from the menu on the left to get started.</p>
+      <p>You can explore Java 8 features through detailed explanations and practice with questions of varying difficulty
+        levels.</p>
+    </div>
+
+    <div id="loadingSpinner" class="loading hidden">
+      <div class="spinner"></div>
+      <p style="margin-left: 1rem;">Loading content...</p>
+    </div>
+
+    <div id="explanationContent" class="explanation-content hidden"></div>
+    <div id="questionsContent" class="questions-content hidden"></div>
+  </div>
+</div>
+
+<script>
+  let currentTopic = '';
+  let currentDifficulty = 'easy';
+  //load at the end of the body
+  // Call `cool()` and access the sidebar after it finishes
+  async function cool(fileName) {
+    return new Promise((resolve, reject) => {
+      const topicList = document.getElementById('topicList');
+      const excelFilePath = '/static/appFiles/' + fileName;
+
+      fetch(excelFilePath)
+        .then(response => response.arrayBuffer())
+        .then(data => {
+          const workbook = XLSX.read(data, {type: 'array'});
+          const sheetName = workbook.SheetNames[0];
+          const sheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+          const mainTopics = {};
+          jsonData.forEach(row => {
+            const mainTopic = row.MainTopic || lastMainTopic;
+            const subTopic = row.SubTopic;
+
+            if (mainTopic) {
+              if (!mainTopics[mainTopic]) {
+                mainTopics[mainTopic] = [];
+              }
+              mainTopics[mainTopic].push(subTopic);
+              lastMainTopic = mainTopic;
+            }
+          });
+
+          for (const [mainTopic, subTopics] of Object.entries(mainTopics)) {
+            const mainTopicItem = document.createElement('li');
+            mainTopicItem.className = 'main-topic';
+            mainTopicItem.textContent = mainTopic;
+            mainTopicItem.setAttribute('data-topic', mainTopic);
+
+            const subTopicList = document.createElement('ul');
+            subTopicList.className = 'subtopics';
+
+            subTopics.forEach(subTopic => {
+              const subTopicItem = document.createElement('li');
+              subTopicItem.className = 'subtopic';
+              subTopicItem.textContent = subTopic;
+              subTopicItem.setAttribute('data-topic', subTopic);
+              subTopicList.appendChild(subTopicItem);
+            });
+
+            mainTopicItem.appendChild(subTopicList);
+            topicList.appendChild(mainTopicItem);
+          }
+
+          resolve(); // Resolve the Promise after content is appended
+        })
+        .catch(error => {
+          console.error('Error loading Excel file:', error);
+          reject(error); // Reject the Promise on error
+        });
+    });
+  }
+
+  async function trig(fileName) {
+    cool(fileName)
+      .then(() => {
+        const sidebar1 = document.getElementById('sidebar');
+        console.log('Sidebar content:', sidebar1.innerHTML); // Access the fully loaded content
+
+
+        // State management
+        currentTopic = '';
+        currentDifficulty = 'easy';
+        let currentSection = 'home';
+
+        // DOM elements
+        const mainTopic = document.querySelectorAll('.main-topic');
+        const subtopics = document.querySelectorAll('.subtopic');
+        const currentTopicElement = document.getElementById('currentTopic');
+        const explainBtn = document.getElementById('explainBtn');
+        const questionsBtn = document.getElementById('questionsBtn');
+        const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+        const welcomeContent = document.getElementById('welcomeContent');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const explanationContent = document.getElementById('explanationContent');
+        const questionsContent = document.getElementById('questionsContent');
+        const menuItems = document.querySelectorAll('.menu-item');
+        const sidebar = document.getElementById('sidebar');
+        const mainContainer = document.getElementById('mainContainer');
+        const actionButtons = document.getElementById('actionButtons');
+
+        // Toggle main topic expansion
+        mainTopic.forEach(mt => {
+          mt.addEventListener('click', function () {
+            this.classList.toggle('expanded');
+          });
+        });
+
+
+        // Handle menu item clicks
+        menuItems.forEach(item => {
+          item.addEventListener('click', function () {
+            // Remove active class from all menu items
+            menuItems.forEach(mi => mi.classList.remove('active'));
+
+            // Add active class to clicked menu item
+            this.classList.add('active');
+
+            // Get section
+            const section = this.getAttribute('data-section');
+            currentSection = section;
+            const selectedMainTopic = this.getAttribute('tech-topic');
+            document.getElementById('hiddenSection').value = selectedMainTopic;
+            document.getElementById('association').value = selectedMainTopic;
+
+            // Toggle sidebar visibility based on section
+            if (section === 'home' || section === 'resources') {
+              sidebar.classList.remove('hidden');
+              mainContainer.classList.remove('full-width');
+            } else {
+              sidebar.classList.add('hidden');
+              mainContainer.classList.add('full-width');
+            }
+
+            // Update content based on section
+            updateContent(section);
+          });
+        });
+
+        // Function to update content based on selected section
+        function updateContent(section) {
+          // Reset content
+          currentTopicElement.textContent = getSectionTitle(section);
+          welcomeContent.classList.remove('hidden');
+          explanationContent.classList.add('hidden');
+          questionsContent.classList.add('hidden');
+
+          // Update welcome content based on section
+          if (section === 'home' || section === 'resources') {
+            welcomeContent.innerHTML = `
+                        <p>Select a topic from the menu on the left to get started.</p>
+                        <p>You can explore Java 8 features through detailed explanations and practice with questions of varying difficulty levels.</p>
+                    `;
+            actionButtons.classList.remove('hidden');
+          } else {
+            welcomeContent.innerHTML = `
+                        <div style="padding: 2rem; background-color: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
+                            <h3>${getSectionTitle(section)}</h3>
+                            <p>This is the ${section} section of the Java 8 Learning Hub.</p>
+                            <p>Content for this section will be displayed here.</p>
+                        </div>
+                    `;
+            actionButtons.classList.add('hidden');
+          }
+        }
+
+        // Helper function to get section title
+        function getSectionTitle(section) {
+          const titles = {
+            'home': 'Welcome to Java 8 Learning Hub',
+            'tutorial': 'Java 8 Tutorials',
+            'practice': 'Practice Exercises',
+            'resources': 'Java 8 Resources',
+            'about': 'About This Platform'
+          };
+
+          return titles[section] || 'Java 8 Learning Hub';
+        }
+
+        // Handle subtopic selection
+        subtopics.forEach(subtopic => {
+          subtopic.addEventListener('click', function () {
+            // Remove active class from all subtopics
+            subtopics.forEach(s => s.classList.remove('active'));
+
+            // Add active class to clicked subtopic
+            this.classList.add('active');
+
+            // Update current topic
+            currentTopic = this.getAttribute('data-topic');
+
+            // Update topic title
+            currentTopicElement.textContent = this.textContent;
+
+            // Hide welcome content
+            welcomeContent.classList.add('hidden');
+
+            // Hide explanation and questions content
+            explanationContent.classList.add('hidden');
+            questionsContent.classList.add('hidden');
+
+            // Show action buttons
+            actionButtons.classList.remove('hidden');
+          });
+        });
+
+        // Handle difficulty selection
+        difficultyBtns.forEach(btn => {
+          btn.addEventListener('click', function () {
+            // Remove active class from all difficulty buttons
+            difficultyBtns.forEach(b => b.classList.remove('active'));
+
+            // Add active class to clicked button
+            this.classList.add('active');
+
+            // Update current difficulty
+            currentDifficulty = this.getAttribute('data-difficulty');
+          });
+        });
+
+        // Handle explain button click
+        explainBtn.addEventListener('click', explainButtonClickHandler);
+
+        // Handle questions button click
+        questionsBtn.addEventListener('click', questionButtonClickHandler);
+
+
+        // Helper function to get readable topic name from data-topic attribute
+        function getTopicName(topicCode) {
+          const topicMap = {
+            'lambda': 'Lambda Expressions',
+            'stream': 'Stream API',
+            'functional': 'Functional Interfaces',
+            'default': 'Default Methods',
+            'method-ref': 'Method References',
+            'datetime': 'New Date/Time API',
+            'optional': 'Optional Class',
+            'nashorn': 'Nashorn JavaScript Engine',
+          };
+
+          return topicMap[topicCode] || topicCode;
+        }
+
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }
+
+  trig('java-file.xlsx');
+  // JavaScript to toggle blur or hide effect
+  document.getElementById('toggleBlurBtn').addEventListener('click', function () {
+    const mainContainer = document.getElementById('mainContainer');
+    if (mainContainer.classList.contains('hidden')) {
+      mainContainer.classList.remove('hidden');
+    } else {
+      mainContainer.classList.add('hidden');
+    }
+  });
+
+  function explainButtonClickHandler() {
+    if (!currentTopic) {
+      alert('Please select a topic first.');
+      return;
+    }
+
+    // Show loading spinner
+    loadingSpinner.classList.remove('hidden');
+    explanationContent.classList.add('hidden');
+    questionsContent.classList.add('hidden');
+
+    // Simulate API call to Google Gemini
+    setTimeout(() => {
+      fetchTopicExplanation(currentTopic)
+        .then(data => {
+          // Hide loading spinner
+          loadingSpinner.classList.add('hidden');
+
+          // Show explanation content
+          explanationContent.innerHTML = data;
+          explanationContent.classList.remove('hidden');
+        })
+        .catch(error => {
+          // Hide loading spinner
+          loadingSpinner.classList.add('hidden');
+
+          // Show error message
+          explanationContent.innerHTML = `<p>Error fetching explanation: ${error.message}</p>`;
+          explanationContent.classList.remove('hidden');
+        });
+    }, 1000);
+  }
+
+  function questionButtonClickHandler() {
+    if (!currentTopic) {
+      alert('Please select a topic first.');
+      return;
+    }
+
+    // Show loading spinner
+    loadingSpinner.classList.remove('hidden');
+    explanationContent.classList.add('hidden');
+    questionsContent.classList.add('hidden');
+
+    // Simulate API call to Google Gemini
+    setTimeout(() => {
+      fetchQuestions(currentTopic, currentDifficulty)
+        .then(data => {
+          // Hide loading spinner
+          loadingSpinner.classList.add('hidden');
+
+          // Show questions content
+          questionsContent.innerHTML = data;
+          questionsContent.classList.remove('hidden');
+        })
+        .catch(error => {
+          // Hide loading spinner
+          loadingSpinner.classList.add('hidden');
+
+          // Show error message
+          questionsContent.innerHTML = `<p>Error fetching questions: ${error.message}</p>`;
+          questionsContent.classList.remove('hidden');
+        });
+    }, 1000);
+  }
+
+  // Function to fetch topic explanation from Google Gemini API
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=`;
+
+  async function fetchTopicExplanation(topic) {
+    // This is where you would make the actual API call to Google Gemini
+    const techTopic = document.getElementById('hiddenSection').value;
+    const associatedWith = document.getElementById('association').value;
+
+    const prompt = {
+      contents: [{
+        parts: [{
+          text: "Explain " + topic + " in " + techTopic + " with expample in easy way associated with " + associatedWith
+        }]
+      }]
+    };
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(prompt)
+    });
+    const data = await response.json();
+    return parseExplanationResponse(data);
+
+    return `<div class="explanation-placeholder">
+                     <h3>Topic Explanation Placeholder</h3>
+                     <p>This is where the explanation for <strong>${getTopicName(topic)}</strong> will appear after integrating with the Google Gemini API.</p>
+                     <p>The API response will be parsed and displayed here in a formatted way.</p>
+                 </div>`;
+  }
+
+  // Function to parse explanation response from Google Gemini
+  function parseExplanationResponse(data) {
+    // This function would parse the response from Google Gemini API
+    // and return formatted HTML content
+    // Implementation would depend on the actual API response structure
+
+    // Example implementation:
+    const rawText = data.candidates[0].content.parts[0].text;
+
+
+    const nextFormattedText = formatText(rawText);
+    return `<div class="output-section">${nextFormattedText}</div>`;
+
+    //     return `<h3>${data.title}</h3>
+    //            <div>${data.explanation}</div>`;
+  }
+
+  // Function to fetch questions from Google Gemini API
+  async function fetchQuestions(topic, difficulty) {
+    // This is where you would make the actual API call to Google Gemini
+    const techTopic = document.getElementById('hiddenSection').value;
+    const associatedWith = document.getElementById('association').value;
+
+    const prompt = {
+      contents: [{
+        parts: [{
+          text: "I want to practice about " + topic + " in " + techTopic + " hence pull 10 " + difficulty + " questions for me associated with " + associatedWith
+        }]
+      }]
+    };
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(prompt)
+    });
+    const data = await response.json();
+    return parseQuestionsResponse(data);
+
+    return `<div class="questions-placeholder">
+                     <h3>${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} Questions for ${getTopicName(topic)}</h3>
+                     <p>This is where 10 ${difficulty} questions about <strong>${getTopicName(topic)}</strong> will appear after integrating with the Google Gemini API.</p>
+                     <p>The API response will be parsed and displayed here as a list of questions.</p>
+                 </div>`;
+  }
+
+
+  // Function to parse questions response from Google Gemini
+  function parseQuestionsResponse(data) {
+    // This function would parse the response from Google Gemini API
+    // and return formatted HTML content with questions
+    // Implementation would depend on the actual API response structure
+
+    const rawText = data.candidates[0].content.parts[0].text;
+
+    // Split the text into lines and format each line
+
+    const nextFormattedText = formatText(rawText);
+
+
+    return `<div class="output-section">${nextFormattedText}</div>`;
+    // Example implementation:
+    // let questionsHtml = `<h3>${data.difficulty} Questions for ${data.topic}</h3>`;
+    // data.questions.forEach((question, index) => {
+    //     questionsHtml += `<div class="question">
+    //                         <div class="question-text">${question.text}</div>
+    //                       </div>`;
+    // });
+    // return questionsHtml;
+  }
+</script>
+
+
+<script>
+  function getRandomColor() {
+    let color = '#';
+    for (let i = 0; i < 3; i++) {
+      // Generate a value between 0 and 100 for each RGB component to ensure dark colors
+      const value = Math.floor(Math.random() * 101);
+      color += value.toString(16).padStart(2, '0');
+    }
+    return color;
+  }
+
+  function formatText(inputText) {
+    var output = '';
+
+    // Split input by lines for processing
+    const lines = inputText.split('\n');
+
+    lines.forEach(line => {
+      var colorr = getRandomColor();
+      output = output + '<br><span style="color: ' + colorr + ';">';
+      // Skip empty lines but add spacing
+
+
+      // Process different patterns
+
+      // Comments (lines starting with //)
+      if (line.trim().startsWith('//')) {
+        const commentElement = document.createElement('div');
+        commentElement.className = 'comment';
+        commentElement.textContent = line.trim().substring(2);
+        output = output + commentElement.innerHTML;
+        return;
+      }
+
+      // Headers (lines starting with #)
+      if (line.trim().startsWith('#')) {
+        const headerElement = document.createElement('div');
+        headerElement.className = 'heading';
+        headerElement.textContent = line.trim().substring(1).trim();
+        output = output + headerElement.innerHTML;
+        return;
+      }
+
+      // Numbered lists (lines starting with number followed by period or colon)
+      const numberMatch = line.trim().match(/^(\d+)[.:](.*)$/);
+      if (numberMatch) {
+        const listItem = document.createElement('div');
+        listItem.className = 'list-item';
+        listItem.innerHTML = `<strong>${numberMatch[1]}.</strong> ${processInlineFormatting(numberMatch[2].trim())}`;
+        output = output + listItem.innerHTML;
+        return;
+      }
+
+      // Bullet lists (lines starting with * or -)
+      if (line.trim().startsWith('*') || line.trim().startsWith('-')) {
+        const listItem = document.createElement('div');
+        listItem.className = 'list-item';
+        listItem.innerHTML = `• ${processInlineFormatting(line.trim().substring(1).trim())}`;
+        output = output + listItem.innerHTML;
+        return;
+      }
+
+      // Default paragraph processing with inline formatting
+      const paragraphElement = document.createElement('p');
+      paragraphElement.innerHTML = processInlineFormatting(line);
+      output = output + paragraphElement.innerHTML + "</span>";
+    });
+    return output;
+  }
+
+  function processInlineFormatting(text) {
+    // Handle inline code with backticks
+    text = text.replace(/`([^`]+)`/g, '<span class="code">$1</span>');
+
+    // Handle bold text with ** or __
+    text = text.replace(/\*\*([^*]+)\*\*/g, '<span class="bold">$1</span>');
+    text = text.replace(/__([^_]+)__/g, '<span class="bold">$1</span>');
+
+    // Handle italic text with * or _
+    text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    text = text.replace(/_([^_]+)_/g, '<em>$1</em>');
+
+    // Handle highlighted text with == or ::
+    text = text.replace(/==([^=]+)==/g, '<span class="highlight">$1</span>');
+    text = text.replace(/::([^:]+)::/g, '<span class="highlight">$1</span>');
+
+    // Handle colons in definition lists
+    text = text.replace(/([^:]+)::([^:]+)/g, '<strong>$1:</strong> $2');
+
+    return text;
+  }
+
+  const sidebarDropdown = document.getElementById('sidebarDropdown');
+  const sidebarList = document.getElementById('topicList');
+  // Add a change event listener to the dropdown
+  sidebarDropdown.addEventListener('change', async () => {
+    // Clear the sidebar list
+    explainBtn.removeEventListener('click', explainButtonClickHandler);
+    questionsBtn.removeEventListener('click', questionButtonClickHandler);
+    while (sidebarList.hasChildNodes()) {
+      sidebarList.removeChild(sidebarList.firstChild);
+    }
+    sidebarList.innerHTML = '';
+    const selectedValue = sidebarDropdown.value;
+    trig(selectedValue + '-file.xlsx');
+  });
+
+</script>
+
+<script>
+
+  document.getElementById('getAns').addEventListener('click', async () => {
+    const question = document.getElementById('myCustomQuestion').value.trim();
+    if (!question) {
+      alert('Please enter a question.');
+      return;
+    }
+
+    // Show loading spinner
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    loadingSpinner.classList.remove('hidden');
+
+    try {
+      // API call to Google Gemini
+      // const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=YOUR_API_KEY`;
+      const prompt = {
+        contents: [{
+          parts: [{
+            text: question
+          }]
+        }]
+      };
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(prompt)
+      });
+
+      const data = await response.json();
+      // const res = data.candidates[0].content.parts[0].text;
+      const apiResponse = parseExplanationResponse(data);
+      // Hide loading spinner
+      loadingSpinner.classList.add('hidden');
+
+      // Create and display the popup window
+      createPopup(apiResponse);
+    } catch (error) {
+      console.error('Error:', error);
+      loadingSpinner.classList.add('hidden');
+      alert('Failed to fetch the response. Please try again.');
+    }
+  });
+
+  function createPopup(content) {
+    // Create the modal container
+    const modal = document.createElement('div');
+    modal.style.position = 'fixed';
+    modal.style.top = '50%';
+    modal.style.left = '50%';
+    modal.style.transform = 'translate(-50%, -50%)';
+    modal.style.width = '80%';
+    modal.style.height = '70%';
+    modal.style.backgroundColor = 'white';
+    modal.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.2)';
+    modal.style.borderRadius = '8px';
+    modal.style.overflowY = 'auto';
+    modal.style.zIndex = '1000';
+    modal.style.padding = '1rem';
+
+    // Add the content to the modal
+    const contentDiv = document.createElement('div');
+    contentDiv.innerHTML = content;
+    modal.appendChild(contentDiv);
+
+    // Add a close button
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'Close';
+    closeButton.style.position = 'absolute';
+    closeButton.style.top = '10px';
+    closeButton.style.right = '10px';
+    closeButton.style.padding = '0.5rem 1rem';
+    closeButton.style.backgroundColor = '#dc3545';
+    closeButton.style.color = 'white';
+    closeButton.style.border = 'none';
+    closeButton.style.borderRadius = '4px';
+    closeButton.style.cursor = 'pointer';
+    closeButton.addEventListener('click', () => {
+      document.body.removeChild(modal);
+    });
+    modal.appendChild(closeButton);
+
+    // Append the modal to the body
+    document.body.appendChild(modal);
+  }
+</script>
+</body>
+</html>
