@@ -918,7 +918,7 @@
       headers: {
         'Content-Type': 'application/json',
       },
-      body: prompt
+      body: JSON.stringify({"prompt":prompt})
     });
     const data = await response.json();
     return parseExplanationResponse(data);
@@ -968,7 +968,7 @@
       headers: {
         'Content-Type': 'application/json',
       },
-      body: prompt
+      body: JSON.stringify({"prompt":prompt})
     });
     const data = await response.json();
     return parseQuestionsResponse(data);
@@ -1146,7 +1146,7 @@
       const prompt = {
         contents: [{
           parts: [{
-            text: question
+            text: JSON.stringify({"prompt":question})
           }]
         }]
       };
