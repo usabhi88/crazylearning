@@ -1142,11 +1142,11 @@
 
     try {
       // API call to Google Gemini
-      // const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=YOUR_API_KEY`;
+      
       const prompt = {
         contents: [{
           parts: [{
-            text: JSON.stringify({"prompt":question})
+            text: question
           }]
         }]
       };
@@ -1156,7 +1156,7 @@
         headers: {
           'Content-Type': 'application/json',
         },
-        body: question
+        body: JSON.stringify({"prompt":question})
       });
 
       const data = await response.json();
