@@ -1,0 +1,167 @@
+#alarm-container {
+  position: fixed;
+  top: 5%;
+  right: 0;
+  transform: translateY(-50%);
+  width: 35px;
+  height: 25px;
+  background-color: #e47a0c;
+  border-radius: 10px 0 0 10px;
+  padding: 1px;
+  box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.3);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  z-index: 1000;
+  transition: width 0.3s ease;
+  overflow: hidden;
+  color: white;
+}
+
+#alarm-container.expanded {
+  width: 250px;
+}
+
+#toggle-button {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 25px;
+  height: 25px;
+  background-color: #3498db;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border: none;
+  color: white;
+  font-weight: bold;
+}
+
+#toggle-button:hover {
+  background-color: #2980b9;
+}
+
+.alarm-content {
+  margin-left: 35px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  width: 205px;
+}
+
+#alarm-container.expanded .alarm-content {
+  opacity: 1;
+}
+
+#clock {
+  font-size: 1.2rem;
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.alarm-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.alarm-input {
+  padding: 6px;
+  border: 1px solid #34495e;
+  border-radius: 5px;
+  background-color: #34495e;
+  color: white;
+}
+
+.btn {
+  padding: 6px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #27ae60;
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.btn:hover {
+  background-color: #2ecc71;
+}
+
+.btn-stop {
+  background-color: #e74c3c;
+}
+
+.btn-stop:hover {
+  background-color: #c0392b;
+}
+
+#alarms-list {
+  margin-top: 10px;
+  max-height: 120px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #3498db #34495e;
+}
+
+#alarms-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+#alarms-list::-webkit-scrollbar-track {
+  background: #34495e;
+}
+
+#alarms-list::-webkit-scrollbar-thumb {
+  background-color: #3498db;
+  border-radius: 6px;
+}
+
+.alarm-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid #34495e;
+  font-size: 0.85rem;
+}
+
+.alarm-time {
+  font-weight: bold;
+}
+
+.delete-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 1px 4px;
+  font-size: 0.7rem;
+}
+
+.alarm-going-off {
+  animation: pulse 1s infinite;
+}
+
+.collapsed-time {
+  display: none;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  margin-top: 10px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+#alarm-container:not(.expanded) .collapsed-time {
+  display: block;
+}
+
+@keyframes pulse {
+  0% { background-color: #2c3e50; }
+  50% { background-color: #c0392b; }
+  100% { background-color: #2c3e50; }
+}
