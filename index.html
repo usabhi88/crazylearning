@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="stylesheet" href="../css/clock.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="../js/clock.js"></script>
   <title>Java 8 Learning Hub</title>
   <style>
     :root {
@@ -502,11 +504,20 @@
   </style>
 </head>
 <body>
+<!-- Add a Clock -->
+<div id="alarm-container">
+  <button id="toggle-button">≡</button>
+  <div class="alarm-content">
+    <div id="clock">00:00:00</div>
+    <div class="alarm-controls">
+      <input type="time" id="alarm-time" class="alarm-input">
+      <button id="set-alarm" class="btn">Set Alarm</button>
+      <button id="stop-alarm" class="btn btn-stop" style="display: none;">Stop Alarm</button>
+    </div>
+    <div id="alarms-list"></div>
+  </div>
+</div>
 
-<!-- Add this button inside the body -->
-<button id="toggleBlurBtn" class="btn btn-primary" style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
-  Toggle Blur
-</button>
 <input type="hidden" id="hiddenSection" value="Grade 1">
 
 <div class="container" id="mainContainer">
@@ -896,14 +907,14 @@
   }
 
   // Function to fetch topic explanation from Google Gemini API
-  const apiUrl = `https://gemini-app-roan.vercel.app/api/gemini`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=`;
 
   async function fetchTopicExplanation(topic) {
     // This is where you would make the actual API call to Google Gemini
     const techTopic = document.getElementById('hiddenSection').value;
     const associatedWith = document.getElementById('association').value;
 
-    const promptold = {
+    const prompt = {
       contents: [{
         parts: [{
           text: "Explain " + topic + " in " + techTopic + " with expample in easy way associated with " + associatedWith
@@ -911,14 +922,12 @@
       }]
     };
 
-    const prompt = "Explain " + topic + " in " + techTopic + " with expample in easy way associated with " + associatedWith;
-
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({"prompt":prompt})
+      body: JSON.stringify(prompt)
     });
     const data = await response.json();
     return parseExplanationResponse(data);
@@ -953,7 +962,7 @@
     const techTopic = document.getElementById('hiddenSection').value;
     const associatedWith = document.getElementById('association').value;
 
-    const promptOL = {
+    const prompt = {
       contents: [{
         parts: [{
           text: "I want to practice about " + topic + " in " + techTopic + " hence pull 10 " + difficulty + " questions for me associated with " + associatedWith
@@ -961,14 +970,12 @@
       }]
     };
 
-    const prompt = "I want to practice about " + topic + " in " + techTopic + " hence pull 10 " + difficulty + " questions for me associated with " + associatedWith;
-
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({"prompt":prompt})
+      body: JSON.stringify(prompt)
     });
     const data = await response.json();
     return parseQuestionsResponse(data);
@@ -1142,7 +1149,7 @@
 
     try {
       // API call to Google Gemini
-      
+      // const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=YOUR_API_KEY`;
       const prompt = {
         contents: [{
           parts: [{
@@ -1156,7 +1163,7 @@
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({"prompt":question})
+        body: JSON.stringify(prompt)
       });
 
       const data = await response.json();
